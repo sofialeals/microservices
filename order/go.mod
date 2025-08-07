@@ -4,6 +4,7 @@ go 1.24.3
 
 require (
 	github.com/sofialeals/microservices-proto/golang/order v0.0.0-00010101000000-000000000000
+	github.com/sofialeals/microservices-proto/golang/payment v0.0.0-00010101000000-000000000000
 	google.golang.org/grpc v1.74.2
 	gorm.io/driver/mysql v1.6.0
 	gorm.io/gorm v1.30.1
@@ -21,4 +22,7 @@ require (
 	google.golang.org/protobuf v1.36.6 // indirect
 )
 
-replace github.com/sofialeals/microservices-proto/golang/order => ../../microservices-proto/golang/order
+replace (
+	github.com/sofialeals/microservices-proto/golang/order => ../../microservices-proto/golang/order
+	github.com/sofialeals/microservices-proto/golang/payment => ../../microservices-proto/golang/payment
+)
