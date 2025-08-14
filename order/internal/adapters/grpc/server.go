@@ -2,8 +2,8 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 	"net"
+	"strconv"
 
 	"log"
 
@@ -42,13 +42,12 @@ func (a Adapter) Create(ctx context.Context, request *order.CreateOrderRequest) 
 	result, err := a.api.PlaceOrder(newOrder)
 	code := status.Code(err)
 
-	// Trata erro de parâmetro inválido (ex.: mais de 50 itens)
 	if code == codes.InvalidArgument {
 		return nil, err
 	} else if err != nil {
 		return nil, status.New(
 			codes.Internal,
-			fmt.Sprintf("failed to place order: %v", err),
+			"failed to place order: "+err.Error(),
 		).Err()
 	}
 
@@ -56,7 +55,7 @@ func (a Adapter) Create(ctx context.Context, request *order.CreateOrderRequest) 
 }
 
 func (a Adapter) Run() {
-	listen, err := net.Listen("tcp", fmt.Sprintf(":%d", a.port))
+	listen, err := net.Listen("tcp", ":"+strconv.Itoa(a.port))
 	if err != nil {
 		log.Fatalf("failed to listen on port %d, error: %v", a.port, err)
 	}
