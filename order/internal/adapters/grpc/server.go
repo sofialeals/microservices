@@ -12,7 +12,9 @@ import (
 	"github.com/sofialeals/microservices/order/internal/application/core/domain"
 	"github.com/sofialeals/microservices/order/internal/ports"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/status"
 )
 
 type Adapter struct {
@@ -34,11 +36,22 @@ func (a Adapter) Create(ctx context.Context, request *order.CreateOrderRequest) 
 			Quantity:    orderItem.Quantity,
 		})
 	}
+
 	newOrder := domain.NewOrder(int64(request.CostumerId), orderItems)
+
 	result, err := a.api.PlaceOrder(newOrder)
-	if err != nil {
+	code := status.Code(err)
+
+	// Trata erro de parâmetro inválido (ex.: mais de 50 itens)
+	if code == codes.InvalidArgument {
 		return nil, err
+	} else if err != nil {
+		return nil, status.New(
+			codes.Internal,
+			fmt.Sprintf("failed to place order: %v", err),
+		).Err()
 	}
+
 	return &order.CreateOrderResponse{OrderId: int32(result.ID)}, nil
 }
 
