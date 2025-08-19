@@ -19,15 +19,6 @@ func NewApplication(db ports.DBPort) *Application {
 	}
 }
 
-// func (a Application) Charge(ctx context.Context, payment domain.Payment) (domain.Payment, error) {
-// 	log.Println("Iniciando o Charge...")
-// 	err := a.db.Save(ctx, &payment)
-// 	if err != nil {
-// 		return domain.Payment{}, err
-// 	}
-// 	return payment, nil
-// }
-
 func (a Application) Charge(ctx context.Context, payment domain.Payment) (domain.Payment, error) {
 	if payment.TotalPrice > 1000 {
 		return domain.Payment{}, status.Errorf(codes.InvalidArgument, "Payment over 1000 is not allowed.")
