@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: shipping
+  labels:
+    service: shipping
+spec:
+  clusterIP: None
+  selector:
+    service: shipping
+  ports:
+    - name: grpc
+      port: 8083
+      protocol: TCP
+      targetPort: 8083
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shipping
+  labels:
+    service: shipping
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: shipping
+  template:
+    metadata:
+      labels:
+        service: shipping
+    spec:
+      containers:
+      - name: shipping
+        image: shipping
+        env:
+          - name: APPLICATION_PORT
+            value: "8083"
+          - name: ENV
+            value: "prod"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/backend-protocol: GRPC
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: selfsigned-issuer
+  name: shipping
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /Shipping
+            pathType: Prefix
+            backend:
+              service:
+                name: shipping
+                port:
+                  number: 8083
+  tls:
+    - hosts:
+        - ingress.local
